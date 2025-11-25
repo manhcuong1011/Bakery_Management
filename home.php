@@ -4,7 +4,7 @@ session_start();
     $host = "bakery-db-bakery2025.j.aivencloud.com";
     $username = "avnadmin";
     $password = "AVNS_w4fPt6P2925yeh3Cb5R";
-    $dbname = "defaultdb";
+    $dbname = "ql_banhngot";
     $port = 19064;
 
     // Aiven yêu cầu kết nối bảo mật (SSL), nên phải dùng cách này:
