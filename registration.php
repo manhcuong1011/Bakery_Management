@@ -66,7 +66,9 @@ if ($num == 1) {
 
 // Nếu đăng ký thất bại (Username Exists), quay lại trang login
 if ($num == 1) {
-    window.location.href = 'home.php'
+    echo "<script>
+                window.location.href = 'home.php';
+            </script>";
     //header("location:login.php");
     exit();
 }
