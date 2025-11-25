@@ -37,7 +37,12 @@ $s="select * from users where username='$user'";
 /* result variable to store data */
 $result = mysqli_query($con, $s);
 
-/* check for duplicate usernames and count records */
+// Kiểm tra xem câu lệnh có chạy được không
+if (!$result) {
+    die("Lỗi SQL: " . mysqli_error($con)); // Nó sẽ hiện ra dòng chữ: Table 'defaultdb.users' doesn't exist
+}
+
+// Nếu chạy được thì mới đếm dòng
 $num = mysqli_num_rows($result);
 
 if ($num == 1) {
