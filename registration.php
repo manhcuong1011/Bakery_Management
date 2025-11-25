@@ -54,12 +54,14 @@ if ($num == 1) {
     
     if (mysqli_query($con, $reg)) {
         // Đăng kí thành công
-        echo "Registration successful";
-        $_SESSION['username'] = $user;
-        header("location:home.php"); 
-    } else {
-        echo "Error: " . $reg . "<br>" . mysqli_error($con);
-    }
+      // Đăng ký thành công
+            $_SESSION['username'] = $user;
+            
+            // Dùng JavaScript để hiện thông báo và chuyển hướng
+            echo "<script>
+                alert('Đăng ký thành công!');
+                window.location.href = 'home.php';
+            </script>";}
 }
 
 // Nếu đăng ký thất bại (Username Exists), quay lại trang login
