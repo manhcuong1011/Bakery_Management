@@ -1,7 +1,25 @@
 <?php
 session_start();
+/* KẾT NỐI DATABASE AIVEN */
+    $host = "bakery-db-bakery2025.j.aivencloud.com";
+    $username = "avnadmin";
+    $password = "AVNS_w4fPt6P2925yeh3Cb5R";
+    $dbname = "ql_banhngot";
+    $port = 19064;
 
-/* KẾT NỐI DATABASE */
+    // Aiven yêu cầu kết nối bảo mật (SSL), nên phải dùng cách này:
+    $con = mysqli_init();
+    mysqli_ssl_set($con, NULL, NULL, NULL, NULL, NULL); 
+    
+    // Thực hiện kết nối
+    if (!mysqli_real_connect($con, $host, $username, $password, $dbname, $port)) {
+        die("Không thể kết nối database: " . mysqli_connect_error());
+    }
+    
+    // Thiết lập font tiếng Việt
+    mysqli_set_charset($con, "utf8");
+
+/* KẾT NỐI DATABASE 
 $con = mysqli_connect('localhost', 'root', '123456', 'ql_banhngot', '3306');
 if (!$con) {
     die("Không thể kết nối database: " . mysqli_connect_error());
