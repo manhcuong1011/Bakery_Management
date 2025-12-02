@@ -1,78 +1,31 @@
 <?php
 session_start();
+require_once 'db_connect.php';
 
-/* KẾT NỐI DATABASE AIVEN */
-    $host = "bakery-db-bakery2025.j.aivencloud.com";
-    $username = "avnadmin";
-    $password = "AVNS_w4fPt6P2925yeh3Cb5R";
-    $dbname = "ql_banhngot";
-    $port = 19064;
-
-    // Aiven yêu cầu kết nối bảo mật (SSL), nên phải dùng cách này:
-    $con = mysqli_init();
-    mysqli_ssl_set($con, NULL, NULL, NULL, NULL, NULL); 
-    
-    // Thực hiện kết nối
-    if (!mysqli_real_connect($con, $host, $username, $password, $dbname, $port)) {
-        die("Không thể kết nối database: " . mysqli_connect_error());
-    }
-    
-    // Thiết lập font tiếng Việt
-    mysqli_set_charset($con, "utf8");
-/* connect to database check user
-$con=mysqli_connect('localhost','root', '123456', 'ql_banhngot', '3306');*/
-
-// Kiểm tra kết nối
-if (!$con) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
-/* create variables to store data */
 $user = mysqli_real_escape_string($con, $_POST['user']); 
 $pass = md5($_POST['password']);
 
-/* select data from DB */
-$s="select * from users where username='$user'"; 
-
-/* result variable to store data */
+// Kiểm tra user tồn tại
+$s = "SELECT * FROM users WHERE username='$user'"; 
 $result = mysqli_query($con, $s);
-
-// Kiểm tra xem câu lệnh có chạy được không
-if (!$result) {
-    die("Lỗi SQL: " . mysqli_error($con)); // Nó sẽ hiện ra dòng chữ: Table 'defaultdb.users' doesn't exist
-}
-
-// Nếu chạy được thì mới đếm dòng
 $num = mysqli_num_rows($result);
 
 if ($num == 1) {
-    // Đăng kí thất bại
     echo "Username Exists";
+    echo "<script>window.location.href = 'login.php';</script>"; 
 } else {
-    $reg = "INSERT INTO users(username, password) 
-           VALUES ('$user', '$pass')";
+    $reg = "INSERT INTO users(username, password) VALUES ('$user', '$pass')";
     
     if (mysqli_query($con, $reg)) {
-        // Đăng kí thành công
-      // Đăng ký thành công
-            $_SESSION['username'] = $user;
-            
-            // Dùng JavaScript để hiện thông báo và chuyển hướng
-            echo "<script>
-                alert('Đăng ký thành công!');
-                window.location.href = 'home.php';
-            </script>";}
+        $_SESSION['username'] = $user;
+        echo "<script>
+            alert('Đăng ký thành công!');
+            window.location.href = 'login.php'; 
+        </script>";
+    } else {
+        echo "Lỗi: " . mysqli_error($con);
+    }
 }
 
-// Nếu đăng ký thất bại (Username Exists), quay lại trang login
-if ($num == 1) {
-    echo "<script>
-                window.location.href = 'home.php';
-            </script>";
-    //header("location:login.php");
-    exit();
-}
-// Đóng kết nối
 mysqli_close($con);
-
 ?>
