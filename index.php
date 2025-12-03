@@ -1,16 +1,14 @@
 <?php
-session_start();
-require_once 'db_connect.php';
+require_once 'session.php'; 
 
-// Kiểm tra đăng nhập
-if (!isset($_SESSION['username'])) {
-    header('location:login.php');
-    exit();
-}
+requireLoggedIn();
 
 // Lấy danh sách sản phẩm
 $query = "SELECT * FROM products ORDER BY id DESC";
 $result = mysqli_query($con, $query);
+
+// Kiểm tra quyền Admin
+$isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
 ?>
 
 <!DOCTYPE html>
@@ -29,13 +27,15 @@ $result = mysqli_query($con, $query);
 <body>
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Bakery Management</h2>
+        <h2>Bakery Management <small class="text-muted" style="font-size: 0.5em">(Xin chào: <?= htmlspecialchars($_SESSION['username']) ?> - Role: <?= htmlspecialchars($_SESSION['role']) ?>)</small></h2>
         <a href="logout.php" class="btn btn-secondary">Logout</a>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Products List</h4>
-        <a href="create.php" class="btn btn-success">+ Add Product</a>
+        <?php if ($isAdmin): ?>
+            <a href="create.php" class="btn btn-success">+ Add Product</a>
+        <?php endif; ?>
     </div>
 
     <table class="table table-bordered table-hover text-center">
@@ -46,8 +46,10 @@ $result = mysqli_query($con, $query);
                 <th>Name</th>
                 <th>Price (VND)</th>
                 <th>Status</th>
-                <th>Create at</th>
-                <th>Action</th>
+                <th>Created at</th>
+                <?php if ($isAdmin): ?>
+                    <th>Action</th>
+                <?php endif; ?>
             </tr>
         </thead>
         <tbody>
@@ -58,16 +60,23 @@ $result = mysqli_query($con, $query);
                     <td><img src="<?= $row['image'] ?: 'https://placehold.co/80x80?text=No+Img' ?>" alt="Image"></td>
                     <td><?= htmlspecialchars($row['name']) ?></td>
                     <td><?= number_format($row['price'], 0, ',', '.') ?></td>
-                    <td><?= htmlspecialchars($row['status']) ?></td>
+                    <td>
+                        <span class="badge badge-<?= $row['status'] == 'In Stock' ? 'success' : 'secondary' ?>">
+                            <?= htmlspecialchars($row['status']) ?>
+                        </span>
+                    </td>
                     <td><?= htmlspecialchars($row['created_at']) ?></td>
+                    
+                    <?php if ($isAdmin): ?>
                     <td>
                         <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">Edit</a>
-                        <a href="delete.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Delete</a>
+                        <a href="delete.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?');">Delete</a>
                     </td>
+                    <?php endif; ?>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="7">There is nothing here!</td></tr>
+            <tr><td colspan="<?= $isAdmin ? 7 : 6 ?>">There is nothing here!</td></tr>
         <?php endif; ?>
         </tbody>
     </table>

@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once 'db_connect.php';
+require_once 'session.php';
+requireAdmin(); // Chỉ admin mới được vào trang này
 
 if (!isset($_SESSION['username'])) {
     header('location:login.php');

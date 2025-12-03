@@ -1,31 +1,36 @@
 <?php
-session_start();
-require_once 'db_connect.php';
+// registration.php - Xử lý đăng ký
+require_once 'session.php'; // Gọi file bảo mật
 
-$user = mysqli_real_escape_string($con, $_POST['user']); 
-$pass = md5($_POST['password']);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $user = mysqli_real_escape_string($con, trim($_POST['user']));
+    $raw_pass = $_POST['password']; // Mật khẩu gốc chưa mã hóa
 
-// Kiểm tra user tồn tại
-$s = "SELECT * FROM users WHERE username='$user'"; 
-$result = mysqli_query($con, $s);
-$num = mysqli_num_rows($result);
+    // 1. Kiểm tra username tồn tại
+    $check_query = "SELECT * FROM users WHERE username='$user'";
+    $result = mysqli_query($con, $check_query);
 
-if ($num == 1) {
-    echo "Username Exists";
-    echo "<script>window.location.href = 'login.php';</script>"; 
-} else {
-    $reg = "INSERT INTO users(username, password) VALUES ('$user', '$pass')";
-    
-    if (mysqli_query($con, $reg)) {
-        $_SESSION['username'] = $user;
-        echo "<script>
-            alert('Đăng ký thành công!');
-            window.location.href = 'login.php'; 
-        </script>";
+    if (mysqli_num_rows($result) > 0) {
+        // Nếu trùng tên -> Báo lỗi
+        header("Location: login.php?error=exists");
+        exit();
     } else {
-        echo "Lỗi: " . mysqli_error($con);
+        // 2. MÃ HÓA MẬT KHẨU
+        $hashed_pass = password_hash($raw_pass, PASSWORD_DEFAULT);
+
+        // 3. Chèn vào DB
+        $sql = "INSERT INTO users (username, password) VALUES ('$user', '$hashed_pass')";
+        
+        if (mysqli_query($con, $sql)) {
+            
+            echo "<script>
+                alert('Đăng ký thành công! Vui lòng đăng nhập tài khoản mới.');
+                window.location.href = 'login.php'; 
+            </script>";
+            
+        } else {
+            echo "Lỗi hệ thống: " . mysqli_error($con);
+        }
     }
 }
-
-mysqli_close($con);
 ?>
