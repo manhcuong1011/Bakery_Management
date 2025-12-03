@@ -2,7 +2,7 @@
 // Thông tin cấu hình Database (Aiven)
 $host = "localhost";
 $username = "root";
-$password = "123456";
+$password = "12345";
 $dbname = "ql_banhngot";
 $port = 3306;
 
