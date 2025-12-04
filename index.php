@@ -1,86 +1,30 @@
 <?php
-require_once 'session.php'; 
-
-requireLoggedIn();
-
-// Lấy danh sách sản phẩm
-$query = "SELECT * FROM products ORDER BY id DESC";
-$result = mysqli_query($con, $query);
-
-// Kiểm tra quyền Admin
-$isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
+// index.php - TRANG CHỦ (Landing Page)
+require_once 'session.php'; // Session & DB
+include 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý bánh ngọt</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-        body { background: #f8f9fa; }
-        .container { background: #fff; padding: 30px; margin-top: 30px; border-radius: 8px; }
-        img { max-width: 80px; border-radius: 4px; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Bakery Management <small class="text-muted" style="font-size: 0.5em">(Xin chào: <?= htmlspecialchars($_SESSION['username']) ?> - Role: <?= htmlspecialchars($_SESSION['role']) ?>)</small></h2>
-        <a href="logout.php" class="btn btn-secondary">Logout</a>
+<div style="
+    background: linear-gradient(rgba(62, 39, 35, 0.7), rgba(62, 39, 35, 0.7)), url('https://images.unsplash.com/photo-1509365465985-25d11c17e812?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+">
+    <div class="container">
+        <h1 class="display-3 font-weight-bold mb-4" style="font-family: 'Pacifico', cursive;">Welcome to Bakery House</h1>
+        <p class="lead mb-5" style="font-size: 1.5rem; max-width: 700px; margin: 0 auto;">
+            Experience the taste of perfection. Freshly baked breads, pastries, and cakes made with the finest ingredients.
+        </p>
+        <a href="products.php" class="btn btn-brown btn-lg px-5 py-3 shadow" style="font-size: 1.2rem;">
+            Order Now <i class="fas fa-arrow-right ml-2"></i>
+        </a>
     </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Products List</h4>
-        <?php if ($isAdmin): ?>
-            <a href="create.php" class="btn btn-success">+ Add Product</a>
-        <?php endif; ?>
-    </div>
-
-    <table class="table table-bordered table-hover text-center">
-        <thead class="thead-light">
-            <tr>
-                <th>ID</th>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Price (VND)</th>
-                <th>Status</th>
-                <th>Created at</th>
-                <?php if ($isAdmin): ?>
-                    <th>Action</th>
-                <?php endif; ?>
-            </tr>
-        </thead>
-        <tbody>
-        <?php if (mysqli_num_rows($result) > 0): ?>
-            <?php while($row = mysqli_fetch_assoc($result)): ?>
-                <tr>
-                    <td><?= $row['id'] ?></td>
-                    <td><img src="<?= $row['image'] ?: 'https://placehold.co/80x80?text=No+Img' ?>" alt="Image"></td>
-                    <td><?= htmlspecialchars($row['name']) ?></td>
-                    <td><?= number_format($row['price'], 0, ',', '.') ?></td>
-                    <td>
-                        <span class="badge badge-<?= $row['status'] == 'In Stock' ? 'success' : 'secondary' ?>">
-                            <?= htmlspecialchars($row['status']) ?>
-                        </span>
-                    </td>
-                    <td><?= htmlspecialchars($row['created_at']) ?></td>
-                    
-                    <?php if ($isAdmin): ?>
-                    <td>
-                        <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">Edit</a>
-                        <a href="delete.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?');">Delete</a>
-                    </td>
-                    <?php endif; ?>
-                </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <tr><td colspan="<?= $isAdmin ? 7 : 6 ?>">There is nothing here!</td></tr>
-        <?php endif; ?>
-        </tbody>
-    </table>
 </div>
-</body>
-</html>
-<?php mysqli_close($con); ?>
+
+<?php include 'includes/footer.php'; ?>
+
