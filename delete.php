@@ -16,13 +16,13 @@ if ($id > 0) {
     mysqli_stmt_bind_param($stmt, "i", $id);
     
     if (mysqli_stmt_execute($stmt)) {
-        header('location: index.php?msg=deleted'); 
+        header('location: products.php?msg=deleted'); 
     } else {
-        header('location: index.php?msg=error');   
+        header('location: products.php?msg=error');   
     }
     mysqli_stmt_close($stmt);
 } else {
-    header('location: index.php?msg=error');      
+    header('location: products.php?msg=error');      
 }
 
 mysqli_close($con);

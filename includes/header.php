@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $current_page = basename($_SERVER['PHP_SELF']); 
 
 // Logic giỏ hàng (Chỉ chạy cho role user)
-require_once 'db_connect.php'; // Đảm bảo đã kết nối DB
+require_once __DIR__ . '/../db_connect.php'; // Đảm bảo đã kết nối DB
 $cart_count = 0;
 if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'] != 'admin') {
     $u_temp = $_SESSION['username'];

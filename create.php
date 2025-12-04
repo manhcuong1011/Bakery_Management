@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   VALUES ('$name', $price, '$status', '$imagePath', NOW())";
         
         if (mysqli_query($con, $query)) {
-            header("location: index.php"); // Đã sửa thành index.php
+            header("location: products.php"); 
             exit();
         } else {
             $error_msg = "Lỗi SQL: " . mysqli_error($con);
@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="file" name="image" accept=".jpg,.jpeg,.png" class="form-control-file">
         </div>
         <button type="submit" class="btn btn-success">Add</button>
-        <a href="index.php" class="btn btn-secondary">Back</a> </form>
+        <a href="products.php" class="btn btn-secondary">Back</a> </form>
 </div>
 </body>
 </html>
