@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $sql = "UPDATE products SET name='$name', price=$price, status='$status', image='$image' WHERE id=$id";
     if (mysqli_query($con, $sql)) {
-        header("Location: index.php"); // Đã sửa
+        header("Location: products.php"); 
         exit();
     } else echo "Lỗi: " . mysqli_error($con);
 }
@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
         </div>
         <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-        <a href="index.php" class="btn btn-secondary">Quay lại</a> </form>
+        <a href="products.php" class="btn btn-secondary">Quay lại</a> </form>
 </div>
 </body>
 </html>
