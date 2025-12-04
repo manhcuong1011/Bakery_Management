@@ -32,8 +32,7 @@ if (!isset($_SESSION['username']) && isset($_COOKIE['remember_user'])) {
     $token = $_COOKIE['remember_user'];
     
     // Tìm user sở hữu token này trong DB (Logic này ta sẽ setup kỹ ở bảng users sau, tạm thời dùng username làm token cho bài tập)
-    // Lưu ý: Để bảo mật cao cho bài cuối kỳ, Cookie không nên lưu username trần mà nên là chuỗi mã hóa.
-    // Ở đây ta tạm dùng username để check cho đơn giản logic trước.
+    // Ở đây tạm dùng username để check cho đơn giản logic trước.
     
     $user = mysqli_real_escape_string($con, $token);
     $query = "SELECT * FROM users WHERE username = '$user'";
@@ -50,7 +49,6 @@ if (!isset($_SESSION['username']) && isset($_COOKIE['remember_user'])) {
 
 /**
  * 3. CÁC HÀM KIỂM TRA QUYỀN (Helper Functions)
- * Giúp code ở các trang khác gọn gàng hơn
  */
 
 // Hàm bắt buộc phải đăng nhập mới được vào
