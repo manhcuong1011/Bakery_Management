@@ -27,7 +27,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login_action'])) {
             if (isset($_POST['remember'])) {
                 setcookie('remember_user', $user, time() + (86400 * 30), "/");
             }
-            header("Location: index.php");
+            if($row['role'] === 'admin'){
+                header("Location: products.php");
+            }else{
+                header("Location: index.php");
+            }
             exit();
         } else {
             $error = "Incorrect password.";
@@ -51,8 +55,17 @@ if(isset($_GET['error']) && $_GET['error'] == 'exists') {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+
+        :root{
+            --bg-gradient-start: #3e2723;
+            --bg-gradient-end: #8d6e63;
+            --primary-brown: #5d4037;
+            --hover-brown: #3e2723;
+            --light-bg: #FDFBF7;
+
+        }
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             height: 100vh;
             display: flex;
             align-items: center;
@@ -63,7 +76,7 @@ if(isset($_GET['error']) && $_GET['error'] == 'exists') {
         .main-card {
             background: #fff;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             width: 900px;
             max-width: 95%;
             overflow: hidden;
@@ -78,13 +91,13 @@ if(isset($_GET['error']) && $_GET['error'] == 'exists') {
             justify-content: center;
         }
         .right-side {
-            background-color: #f9f9f9;
-            border-left: 1px solid #f0f0f0;
+            background-color: var(--light-bg);
+            border-left: 1px solid #EFEBE9;
         }
 
         /* HEADINGS */
-        h2 { font-weight: 600; font-size: 24px; color: #333; margin-bottom: 5px; }
-        p.sub { font-size: 13px; color: #999; margin-bottom: 20px; }
+        h2 { font-weight: 600; font-size: 24px; color: #4E342E; margin-bottom: 5px; }
+        p.sub { font-size: 13px; color: #8D6E63; margin-bottom: 20px; }
 
         /* ERROR BOX FIXED HEIGHT */
         .msg-box {
@@ -115,13 +128,13 @@ if(isset($_GET['error']) && $_GET['error'] == 'exists') {
             border-radius: 50px; /* Bo tròn kiểu viên thuốc */
             padding: 0 20px;
             font-size: 13px;
-            border: 1px solid #ddd;
+            border: 1px solid #D7CCC8;
             background: #fff;
             margin-bottom: 15px;
         }
         .form-control:focus {
-            border-color: #764ba2;
-            box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.1);
+            border-color: var(--primary-brown);
+            box-shadow: 0 0 0 4px rgba(93, 64, 55, 0.1);
         }
 
         /* CHECKBOX & SPACER ALIGNMENT */
@@ -134,7 +147,7 @@ if(isset($_GET['error']) && $_GET['error'] == 'exists') {
             margin-bottom: 15px;
             padding-left: 5px;
         }
-        .form-check-label { font-size: 12px; color: #666; cursor: pointer; margin-left: 5px; }
+        .form-check-label { font-size: 12px; color: #6D4C41; cursor: pointer; margin-left: 5px; }
         
         .spacer {
             height: 25px; /* Chiều cao bằng checkbox-container */
@@ -157,15 +170,23 @@ if(isset($_GET['error']) && $_GET['error'] == 'exists') {
             transition: all 0.3s;
         }
         .btn-login {
-            background: #764ba2; color: #fff;
-            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+            background: var(--primary-brown);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(93, 64, 55, 0.3);
         }
-        .btn-login:hover { background: #5b3a7d; transform: translateY(-2px); }
+        .btn-login:hover { 
+            background: var(--hover-brown); 
+            transform: translateY(-2px); 
+        }
         
         .btn-register {
-            background: transparent; border: 2px solid #764ba2; color: #764ba2;
+            background: transparent;
+            border: 2px solid var(--primary-brown); 
+            color: var(--primary-brown);
         }
-        .btn-register:hover { background: #764ba2; color: #fff; }
+        .btn-register:hover { 
+            background: var(--primary-brown); 
+            color: #fff; }
 
         @media (max-width: 768px) {
             .main-card { flex-direction: column; width: 90%; margin: 20px 0; height: auto;}
