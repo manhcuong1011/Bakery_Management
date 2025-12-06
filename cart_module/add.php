@@ -26,3 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['product_id'])) {
         // Chưa có -> Thêm mới
         mysqli_query($con, "INSERT INTO cart (user_id, product_id, quantity) VALUES ($user_id, $product_id, 1)");
     }
+
+      
+    // Quay lại trang trước đó
+    echo "<script>history.back();</script>";
+} else {
+    header('Location: ../products.php');
+}
+?>
