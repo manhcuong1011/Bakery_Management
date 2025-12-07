@@ -19,4 +19,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['product_id'])) {
     $check_query = "SELECT * FROM cart WHERE user_id = $user_id AND product_id = $product_id";
     $check_res = mysqli_query($con, $check_query);
     
- 
+  if (mysqli_num_rows($check_res) > 0) {
+        // Có rồi -> Tăng số lượng
+        mysqli_query($con, "UPDATE cart SET quantity = quantity + 1 WHERE user_id = $user_id AND product_id = $product_id");
+    } else {
+        // Chưa có -> Thêm mới
+        mysqli_query($con, "INSERT INTO cart (user_id, product_id, quantity) VALUES ($user_id, $product_id, 1)");
+    }
+    
+    // Quay lại trang trước đó
+    echo "<script>history.back();</script>";
+} else {
+    header('Location: ../products.php');
+}
+?>
