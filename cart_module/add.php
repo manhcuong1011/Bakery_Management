@@ -1,6 +1,11 @@
 <?php
 // cart_module/add.php - Xử lý thêm sản phẩm vào giỏ
 session_start();
+//kiểm tra xem login chưa
+if (!isset($_SESSION['username'])) {
+    header("Location: ../login.php");
+    exit();
+}
 require_once '../session.php'; 
 require_once '../db_connect.php';
 
