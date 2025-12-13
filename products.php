@@ -1,5 +1,5 @@
 <?php
-// products.php - TRANG SẢN PHẨM
+// products.php 
 require_once 'session.php';
 require_once 'db_connect.php'; 
 
@@ -18,7 +18,7 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
         <div class="bg-white p-4 rounded shadow-sm">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="text-dark">Products</h2>
-                <a href="create.php" class="btn btn-success rounded-pill px-4">+ Add Product</a>
+                <a href="admin/create.php" class="btn btn-success rounded-pill px-4">+ Add Product</a>
             </div>
             <table class="table table-hover align-middle">
                 <thead class="thead-light">
@@ -33,8 +33,8 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
                         <td><?= number_format($row['price']) ?> đ</td>
                         <td><?= $row['status'] ?></td>
                         <td>
-                            <a href="edit.php?id=<?= $row['id'] ?>" class="text-primary mr-2"><i class="fas fa-edit"></i></a>
-                            <a href="delete.php?id=<?= $row['id'] ?>" class="text-danger" onclick="return confirm('Delete?');"><i class="fas fa-trash"></i></a>
+                            <a href="admin/edit.php?id=<?= $row['id'] ?>" class="text-primary mr-2"><i class="fas fa-edit"></i></a>
+                            <a href="admin/delete.php?id=<?= $row['id'] ?>" class="text-danger" onclick="return confirm('Delete?');"><i class="fas fa-trash"></i></a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
@@ -80,4 +80,3 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
 </div>
 
 <?php include 'includes/footer.php'; ?>
-
