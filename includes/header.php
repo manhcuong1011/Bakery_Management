@@ -3,12 +3,21 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Logic để bôi đậm menu trang hiện tại
+
+$path_prefix = '';
+if (strpos($_SERVER['SCRIPT_NAME'], '/cart_module/') !== false) {
+    $path_prefix = '../'; // Thêm ../ để lùi ra thư mục gốc
+}
+
+// Dùng __DIR__ để lấy đường dẫn tuyệt đối của file header, sau đó lùi ra 1 cấp
+require_once __DIR__ . '/../db_connect.php'; 
+
+// Logic active menu
 $current_page = basename($_SERVER['PHP_SELF']); 
 
-// Logic giỏ hàng (Chỉ chạy cho role user)
-require_once __DIR__ . '/../db_connect.php'; // Đảm bảo đã kết nối DB
+// Logic giỏ hàng
 $cart_count = 0;
+// Chỉ đếm giỏ hàng nếu user đã đăng nhập và không phải admin (nếu bạn muốn admin cũng hiện thì bỏ check role)
 if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'] != 'admin') {
     $u_temp = $_SESSION['username'];
     $q_u = mysqli_query($con, "SELECT id FROM users WHERE username = '$u_temp'");
@@ -31,13 +40,13 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
     
     <style>
-        /* --- BẢNG BAKERY --- */
+        /* --- BẢNG MÀU NÂU BAKERY --- */
         :root {
-            --primary-brown: #5D4037;  /* Nâu đậm (Espresso) */
-            --light-brown: #8D6E63;    /* Nâu nhạt (Latte) */
-            --cream-bg: #FDFBF7;       /* Màu kem nền */
-            --text-dark: #3E2723;      /* Chữ nâu đen */
-            --gold-accent: #FFCA28;    /* Màu vàng điểm xuyết */
+            --primary-brown: #5D4037;
+            --light-brown: #8D6E63;
+            --cream-bg: #FDFBF7;
+            --text-dark: #3E2723;
+            --gold-accent: #FFCA28;
         }
 
         body {
@@ -49,14 +58,13 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
             min-height: 100vh;
         }
 
-        /* Navbar Styling */
         .navbar {
             background-color: #fff;
             box-shadow: 0 4px 12px rgba(93, 64, 55, 0.1);
             padding: 15px 0;
         }
         .navbar-brand {
-            font-family: 'Pacifico', cursive; /* Font chữ viết tay cho Logo */
+            font-family: 'Pacifico', cursive;
             font-size: 1.8rem;
             color: var(--primary-brown) !important;
         }
@@ -74,7 +82,6 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
             border-bottom: 2px solid var(--primary-brown);
         }
 
-        /* Buttons */
         .btn-brown {
             background-color: var(--primary-brown);
             color: #fff;
@@ -99,8 +106,6 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
             background-color: var(--primary-brown);
             color: #fff;
         }
-
-        /* Cart Icon */
         .cart-icon-wrap {
             color: var(--primary-brown);
             font-size: 1.3rem;
@@ -117,8 +122,6 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
             padding: 2px 6px;
             border-radius: 50%;
         }
-
-        /* Footer fixation */
         main { flex: 1; }
     </style>
 </head>
@@ -126,7 +129,7 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
 
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="index.php">
+        <a class="navbar-brand" href="<?= $path_prefix ?>index.php">
             <i class="fas fa-cookie-bite mr-2"></i>Bakery House
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav">
@@ -136,18 +139,18 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ml-auto align-items-center">
                 <li class="nav-item <?= ($current_page == 'index.php') ? 'active' : '' ?>">
-                    <a class="nav-link" href="index.php">Home</a>
+                    <a class="nav-link" href="<?= $path_prefix ?>index.php">Home</a>
                 </li>
                 <li class="nav-item <?= ($current_page == 'products.php') ? 'active' : '' ?>">
-                    <a class="nav-link" href="products.php">Products</a>
+                    <a class="nav-link" href="<?= $path_prefix ?>products.php">Products</a>
                 </li>
                 <li class="nav-item <?= ($current_page == 'contact.php') ? 'active' : '' ?>">
-                    <a class="nav-link" href="contact.php">Contact</a>
+                    <a class="nav-link" href="<?= $path_prefix ?>contact.php">Contact</a>
                 </li>
                 
                 <?php if (isset($_SESSION['username'])): ?>
                     <li class="nav-item ml-3">
-                        <a href="cart_module/view.php" class="cart-icon-wrap">
+                        <a href="<?= $path_prefix ?>cart_module/view.php" class="cart-icon-wrap">
                             <i class="fas fa-shopping-cart"></i>
                             <?php if($cart_count > 0): ?>
                                 <span class="cart-badge"><?= $cart_count ?></span>
@@ -159,12 +162,12 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
                             <i class="fas fa-user mr-1"></i> <?= $_SESSION['username'] ?>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="logout.php">Logout</a>
+                            <a class="dropdown-item" href="<?= $path_prefix ?>logout.php">Logout</a>
                         </div>
                     </li>
                 <?php else: ?>
                     <li class="nav-item ml-3">
-                        <a href="login.php" class="btn btn-brown">Login</a>
+                        <a href="<?= $path_prefix ?>login.php" class="btn btn-brown">Login</a>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -172,4 +175,3 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
     </div>
 </nav>
 <main>
-
