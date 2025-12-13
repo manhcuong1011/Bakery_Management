@@ -1,19 +1,34 @@
 <?php
-// includes/header.php
+// includes/header.php 
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Logic để bôi đậm menu trang hiện tại
-$current_page = basename($_SERVER['PHP_SELF']); 
 
-// Logic giỏ hàng (Chỉ chạy cho role user)
-require_once __DIR__ . '/../db_connect.php'; // Đảm bảo đã kết nối DB
+// 1. LOGIC TỰ ĐỘNG SỬA ĐƯỜNG DẪN (PATH FIX)
+// Logic: Nếu đang đứng trong thư mục con (cart_module hoặc admin) thì thêm '../' để lùi ra ngoài
+$path_prefix = '';
+if (strpos($_SERVER['SCRIPT_NAME'], '/cart_module/') !== false || strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false) {
+    $path_prefix = '../';
+}
+
+// 2. KẾT NỐI DATABASE
+// Dùng __DIR__ để luôn tìm thấy file db_connect.php dù header được gọi từ đâu
+require_once __DIR__ . '/../db_connect.php'; 
+
+// 3. XÁC ĐỊNH TRANG HIỆN TẠI & QUYỀN
+$current_page = basename($_SERVER['PHP_SELF']); 
+$isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
+
+// 4. LOGIC GIỎ HÀNG (Chỉ đếm số lượng khi User thường đăng nhập)
 $cart_count = 0;
-if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'] != 'admin') {
+if (isset($_SESSION['username']) && !$isAdmin) {
     $u_temp = $_SESSION['username'];
+    // Lấy user_id
     $q_u = mysqli_query($con, "SELECT id FROM users WHERE username = '$u_temp'");
     if ($r_u = mysqli_fetch_assoc($q_u)) {
         $uid = $r_u['id'];
+        // Tính tổng số lượng trong cart
         $q_c = mysqli_query($con, "SELECT SUM(quantity) as total FROM cart WHERE user_id = $uid");
         $d_c = mysqli_fetch_assoc($q_c);
         $cart_count = $d_c['total'] ?? 0;
@@ -31,13 +46,13 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
     
     <style>
-        /* --- BẢNG BAKERY --- */
+        /* --- BẢNG MÀU NÂU BAKERY (Giữ nguyên style cũ) --- */
         :root {
-            --primary-brown: #5D4037;  /* Nâu đậm (Espresso) */
-            --light-brown: #8D6E63;    /* Nâu nhạt (Latte) */
-            --cream-bg: #FDFBF7;       /* Màu kem nền */
-            --text-dark: #3E2723;      /* Chữ nâu đen */
-            --gold-accent: #FFCA28;    /* Màu vàng điểm xuyết */
+            --primary-brown: #5D4037;
+            --light-brown: #8D6E63;
+            --cream-bg: #FDFBF7;
+            --text-dark: #3E2723;
+            --gold-accent: #FFCA28;
         }
 
         body {
@@ -56,7 +71,7 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
             padding: 15px 0;
         }
         .navbar-brand {
-            font-family: 'Pacifico', cursive; /* Font chữ viết tay cho Logo */
+            font-family: 'Pacifico', cursive;
             font-size: 1.8rem;
             color: var(--primary-brown) !important;
         }
@@ -74,7 +89,7 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
             border-bottom: 2px solid var(--primary-brown);
         }
 
-        /* Buttons */
+        /* Buttons & Icons */
         .btn-brown {
             background-color: var(--primary-brown);
             color: #fff;
@@ -99,8 +114,6 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
             background-color: var(--primary-brown);
             color: #fff;
         }
-
-        /* Cart Icon */
         .cart-icon-wrap {
             color: var(--primary-brown);
             font-size: 1.3rem;
@@ -117,8 +130,6 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
             padding: 2px 6px;
             border-radius: 50%;
         }
-
-        /* Footer fixation */
         main { flex: 1; }
     </style>
 </head>
@@ -126,7 +137,7 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
 
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="index.php">
+        <a class="navbar-brand" href="<?= $isAdmin ? $path_prefix.'products.php' : $path_prefix.'index.php' ?>">
             <i class="fas fa-cookie-bite mr-2"></i>Bakery House
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav">
@@ -135,36 +146,56 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
 
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ml-auto align-items-center">
-                <li class="nav-item <?= ($current_page == 'index.php') ? 'active' : '' ?>">
-                    <a class="nav-link" href="index.php">Home</a>
-                </li>
+                
+                <?php if (!$isAdmin): ?>
+                    <li class="nav-item <?= ($current_page == 'index.php') ? 'active' : '' ?>">
+                        <a class="nav-link" href="<?= $path_prefix ?>index.php">Home</a>
+                    </li>
+                <?php endif; ?>
+
                 <li class="nav-item <?= ($current_page == 'products.php') ? 'active' : '' ?>">
-                    <a class="nav-link" href="products.php">Products</a>
-                </li>
-                <li class="nav-item <?= ($current_page == 'contact.php') ? 'active' : '' ?>">
-                    <a class="nav-link" href="contact.php">Contact</a>
+                    <a class="nav-link" href="<?= $path_prefix ?>products.php">
+                        <?= $isAdmin ? 'Products' : 'Products' ?>
+                    </a>
                 </li>
                 
-                <?php if (isset($_SESSION['username'])): ?>
-                    <li class="nav-item ml-3">
-                        <a href="cart_module/view.php" class="cart-icon-wrap">
-                            <i class="fas fa-shopping-cart"></i>
-                            <?php if($cart_count > 0): ?>
-                                <span class="cart-badge"><?= $cart_count ?></span>
-                            <?php endif; ?>
-                        </a>
+                <?php if ($isAdmin): ?>
+                    <li class="nav-item <?= ($current_page == 'manage_users.php') ? 'active' : '' ?>">
+                        <a class="nav-link" href="<?= $path_prefix ?>admin/manage_users.php">Users</a>
                     </li>
+                <?php endif; ?>
+
+                <?php if (!$isAdmin): ?>
+                    <li class="nav-item <?= ($current_page == 'contact.php') ? 'active' : '' ?>">
+                        <a class="nav-link" href="<?= $path_prefix ?>contact.php">Contact</a>
+                    </li>
+                <?php endif; ?>
+                
+                <?php if (isset($_SESSION['username'])): ?>
+                    
+                    <?php if (!$isAdmin): ?>
+                        <li class="nav-item ml-3">
+                            <a href="<?= $path_prefix ?>cart_module/view.php" class="cart-icon-wrap">
+                                <i class="fas fa-shopping-cart"></i>
+                                <?php if($cart_count > 0): ?>
+                                    <span class="cart-badge"><?= $cart_count ?></span>
+                                <?php endif; ?>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle btn-outline-brown" href="#" id="userDrop" data-toggle="dropdown">
                             <i class="fas fa-user mr-1"></i> <?= $_SESSION['username'] ?>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="logout.php">Logout</a>
+                            <a class="dropdown-item" href="<?= $path_prefix ?>logout.php">Logout</a>
                         </div>
                     </li>
+
                 <?php else: ?>
                     <li class="nav-item ml-3">
-                        <a href="login.php" class="btn btn-brown">Login</a>
+                        <a href="<?= $path_prefix ?>login.php" class="btn btn-brown">Login</a>
                     </li>
                 <?php endif; ?>
             </ul>
@@ -172,4 +203,3 @@ if (isset($_SESSION['username']) && isset($_SESSION['role']) && $_SESSION['role'
     </div>
 </nav>
 <main>
-
