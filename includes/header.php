@@ -1,22 +1,19 @@
 <?php
-// includes/header.php 
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 // 1. LOGIC TỰ ĐỘNG SỬA ĐƯỜNG DẪN (PATH FIX)
-// Logic: Nếu đang đứng trong thư mục con (cart_module hoặc admin) thì thêm '../' để lùi ra ngoài
 $path_prefix = '';
 if (strpos($_SERVER['SCRIPT_NAME'], '/cart_module/') !== false || strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false) {
     $path_prefix = '../';
 }
 
 // 2. KẾT NỐI DATABASE
-// Dùng __DIR__ để luôn tìm thấy file db_connect.php dù header được gọi từ đâu
+// Dùng __DIR__ để luôn tìm thấy file db_connect.php dù header được gọi từ bất cứ đâu
 require_once __DIR__ . '/../db_connect.php'; 
 
-// 3. XÁC ĐỊNH TRANG HIỆN TẠI & QUYỀN
+// 3. XÁC ĐỊNH TRANG HIỆN TẠI & QUYỀN ADMIN
 $current_page = basename($_SERVER['PHP_SELF']); 
 $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
 
@@ -40,7 +37,7 @@ if (isset($_SESSION['username']) && !$isAdmin) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bakery Shop</title>
+    <title>Bakery House</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
@@ -162,6 +159,9 @@ if (isset($_SESSION['username']) && !$isAdmin) {
                 <?php if ($isAdmin): ?>
                     <li class="nav-item <?= ($current_page == 'manage_users.php') ? 'active' : '' ?>">
                         <a class="nav-link" href="<?= $path_prefix ?>admin/manage_users.php">Users</a>
+                    </li>
+                    <li class="nav-item <?= ($current_page == 'messages.php') ? 'active' : '' ?>">
+                        <a class="nav-link" href="<?= $path_prefix ?>admin/messages.php">Messages</a>
                     </li>
                 <?php endif; ?>
 
