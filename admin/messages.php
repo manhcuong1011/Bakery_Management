@@ -45,7 +45,7 @@ include '../includes/header.php';
                         <th width="15%">Date</th>
                         <th width="20%">Sender Info</th>
                         <th width="20%">Subject</th>
-                        <th width="35%">Message</th>
+                        <th width="35%" class="text-center">Message</th>
                         <th width="5%" class="text-center">Action</th>
                     </tr>
                 </thead>
