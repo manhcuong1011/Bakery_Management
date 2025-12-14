@@ -1,26 +1,27 @@
 <?php
 session_start();
 
-if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin'){
+// 1. CHẶN USER THƯỜNG
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit();
 }
-require_once '../db_connect.php';
 
-// xử lý tin nhắn
+require_once '../db_connect.php'; 
 
-if ($_SERVER['REQUEST_METHOD'] ==='POST' && isset($_POST['delete_id'])) {
+// --- XỬ LÝ XÓA TIN NHẮN ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $delete_id = (int)$_POST['delete_id'];
     $sql = "DELETE FROM messages WHERE id = $delete_id";
-
-  if (mysqli_query($con, $sql)) {
+    
+    if (mysqli_query($con, $sql)) {
         echo "<script>alert('Đã xóa tin nhắn thành công!'); window.location.href='messages.php';</script>";
     } else {
         echo "<script>alert('Lỗi: " . mysqli_error($con) . "');</script>";
     }
 }
 
-// lấy tất cả tin nhắn
+// 2. LẤY DANH SÁCH TIN NHẮN (Mới nhất lên đầu)
 $query = "SELECT * FROM messages ORDER BY created_at DESC";
 $result = mysqli_query($con, $query);
 
