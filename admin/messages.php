@@ -10,8 +10,8 @@ require_once '../db_connect.php';
 // xử lý tin nhắn
 
 if ($_SERVER["REQUEST_METHOD"] ==="POST" && isset($_POST['delete_id'])) {
-    $deleted_id = (int)$_POST['delete_id'];
-    $sql = "DELETE FROM messages WHERE id = $deleted_id";
+    $delete_id = (int)$_POST['delete_id'];
+    $sql = "DELETE FROM messages WHERE id = $delete_id";
 
   if (mysqli_query($con, $sql)) {
         echo "<script>alert('Đã xóa tin nhắn thành công!'); window.location.href='messages.php';</script>";
