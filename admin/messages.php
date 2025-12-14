@@ -9,7 +9,7 @@ require_once '../db_connect.php';
 
 // xử lý tin nhắn
 
-if ($_SERVER["REQUEST_METHOD"] ==="POST" && isset($_POST['delete_id'])) {
+if ($_SERVER['REQUEST_METHOD'] ==='POST' && isset($_POST['delete_id'])) {
     $delete_id = (int)$_POST['delete_id'];
     $sql = "DELETE FROM messages WHERE id = $delete_id";
 
