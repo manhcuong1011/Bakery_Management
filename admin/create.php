@@ -1,5 +1,6 @@
 <?php
 require_once '../session.php'; 
+require_once '../db_connect.php'; 
 
 // 1. Check quyền Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -7,29 +8,29 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-require_once '../db_connect.php'; 
-
-$msg = "";
-
-if (isset($_POST['upload'])) {
+// XỬ LÝ KHI BẤM NÚT "ADD PRODUCT"
+if (isset($_POST['add_product'])) {
     $name = mysqli_real_escape_string($con, $_POST['name']);
     $price = (float) $_POST['price'];
-    $desc = mysqli_real_escape_string($con, $_POST['description'] ?? '');
     
+    // Status (Mặc định là In Stock nếu không chọn)
+    $status = mysqli_real_escape_string($con, $_POST['status']);
+
     // Xử lý ảnh
     $image = $_FILES['image']['name'];
-    // Target để upload file vật lý 
-    $target = "../uploads/" . basename($image);
-    // Path để lưu vào database 
-    $db_image_path = "uploads/" . basename($image);
+    $target = "../uploads/" . basename($image); 
+    $db_image_path = "uploads/" . basename($image); 
 
     if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-        $sql = "INSERT INTO products (name, price, image, description) VALUES ('$name', '$price', '$db_image_path', '$desc')";
-        mysqli_query($con, $sql);
-        header("Location: ../products.php"); 
-        exit();
+        $sql = "INSERT INTO products (name, price, image, status) VALUES ('$name', '$price', '$db_image_path', '$status')";
+        
+        if (mysqli_query($con, $sql)) {
+            echo "<script>alert('Thêm bánh mới thành công!'); window.location.href='../products.php';</script>";
+        } else {
+            echo "Lỗi SQL: " . mysqli_error($con);
+        }
     } else {
-        $msg = "Failed to upload image.";
+        echo "<script>alert('Lỗi upload ảnh! Hãy kiểm tra lại thư mục uploads.');</script>";
     }
 }
 
@@ -44,29 +45,33 @@ include '../includes/header.php';
                     <h4 class="mb-0">Add New Product</h4>
                 </div>
                 <div class="card-body">
-                    <?php if($msg): ?>
-                        <div class="alert alert-danger"><?= $msg ?></div>
-                    <?php endif; ?>
-
-                    <form method="POST" action="create.php" enctype="multipart/form-data">
+                    <form method="POST" action="" enctype="multipart/form-data">
+                        
                         <div class="form-group">
                             <label>Product Name</label>
-                            <input type="text" name="name" class="form-control" required>
+                            <input type="text" name="name" class="form-control" placeholder="Example: Chocolate" required>
                         </div>
+                        
                         <div class="form-group">
                             <label>Price (VND)</label>
-                            <input type="number" name="price" class="form-control" required>
+                            <input type="number" name="price" class="form-control" placeholder="Example: 50000" required>
                         </div>
+
                         <div class="form-group">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control" rows="3"></textarea>
+                            <label>Status</label>
+                            <select name="status" class="form-control">
+                                <option value="In Stock">In Stock</option>
+                                <option value="Out of Stock">Out of Stock</option>
+                            </select>
                         </div>
+
                         <div class="form-group">
-                            <label>Image</label>
+                            <label>Product Image</label>
                             <input type="file" name="image" class="form-control-file" required>
                         </div>
+
                         <div class="mt-4">
-                            <button type="submit" name="upload" class="btn btn-brown">Save Product</button>
+                            <button type="submit" name="add_product" class="btn btn-brown px-4">Add Product</button>
                             <a href="../products.php" class="btn btn-secondary ml-2">Cancel</a>
                         </div>
                     </form>

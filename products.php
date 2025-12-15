@@ -5,13 +5,14 @@ require_once 'db_connect.php';
 // Include Header
 include 'includes/header.php';
 
-// --- XỬ LÝ TÌM KIẾM ---
+// --- XỬ LÝ TÌM KIẾM & LỌC SẢN PHẨM ---
+// Chỉ lấy những sản phẩm chưa bị "Xóa mềm" (status != 'Deleted')
 $search = "";
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search = mysqli_real_escape_string($con, $_GET['search']);
-    $query = "SELECT * FROM products WHERE name LIKE '%$search%' ORDER BY id DESC";
+    $query = "SELECT * FROM products WHERE name LIKE '%$search%' AND status != 'Deleted' ORDER BY id DESC";
 } else {
-    $query = "SELECT * FROM products ORDER BY id DESC";
+    $query = "SELECT * FROM products WHERE status != 'Deleted' ORDER BY id DESC";
 }
 
 $result = mysqli_query($con, $query);
@@ -64,14 +65,23 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="thead-light">
-                        <tr><th>ID</th><th>Img</th><th>Name</th><th>Price</th><th>Status</th><th>Action</th></tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Img</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                     <?php if(mysqli_num_rows($result) > 0): ?>
                         <?php while($row = mysqli_fetch_assoc($result)): ?>
                             <tr>
                                 <td><?= $row['id'] ?></td>
-                                <td><img src="<?= $row['image'] ?: 'https://placehold.co/50x50' ?>" width="50" class="rounded"></td>
+                                <td>
+                                    <img src="<?= $row['image'] ?: 'https://placehold.co/50x50' ?>" width="50" class="rounded">
+                                </td>
                                 <td class="font-weight-bold"><?= htmlspecialchars($row['name']) ?></td>
                                 <td><?= number_format($row['price']) ?> đ</td>
                                 
@@ -84,8 +94,15 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
                                 </td>
 
                                 <td>
-                                    <a href="admin/edit.php?id=<?= $row['id'] ?>" class="text-primary mr-3" title="Edit"><i class="fas fa-edit"></i></a>
-                                    <a href="admin/delete.php?id=<?= $row['id'] ?>" class="text-danger" onclick="return confirm('Delete this cake?');" title="Delete"><i class="fas fa-trash"></i></a>
+                                    <a href="admin/edit.php?id=<?= $row['id'] ?>" class="text-primary mr-3" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="admin/delete.php" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                        <button type="submit" class="btn btn-link text-danger p-0 border-0" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -100,7 +117,9 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
     <?php else: ?>
         <div class="row">
             <?php if (mysqli_num_rows($result) > 0): ?>
-                <?php mysqli_data_seek($result, 0); ?>
+                <?php 
+                mysqli_data_seek($result, 0); 
+                ?>
                 <?php while($row = mysqli_fetch_assoc($result)): ?>
                     <div class="col-md-3 mb-4">
                         <div class="card h-100 border-0 shadow-sm product-card" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s;">
@@ -110,6 +129,7 @@ $isAdmin = (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
                                     <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(255,255,255,0.8); padding:5px; text-align:center; font-size:0.8rem; color:#5D4037;">Match found</div>
                                 <?php endif; ?>
                             </div>
+
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title font-weight-bold text-dark"><?= htmlspecialchars($row['name']) ?></h5>
                                 

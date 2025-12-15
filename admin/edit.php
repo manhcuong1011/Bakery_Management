@@ -1,5 +1,10 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once '../session.php'; 
+require_once '../db_connect.php'; 
 
 // 1. Check quyền Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -7,9 +12,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-require_once '../db_connect.php'; 
-
-
+// Lấy ID sản phẩm
 if (!isset($_GET['id'])) {
     header("Location: ../products.php");
     exit();
@@ -18,10 +21,16 @@ $id = (int)$_GET['id'];
 $result = mysqli_query($con, "SELECT * FROM products WHERE id=$id");
 $product = mysqli_fetch_assoc($result);
 
+if (!$product) {
+    echo "Sản phẩm không tồn tại!";
+    exit();
+}
+
 if (isset($_POST['update'])) {
     $name = mysqli_real_escape_string($con, $_POST['name']);
     $price = (float) $_POST['price'];
-    $desc = mysqli_real_escape_string($con, $_POST['description'] ?? '');
+    
+    $status = mysqli_real_escape_string($con, $_POST['status']);
 
     // Logic update ảnh
     if (!empty($_FILES['image']['name'])) {
@@ -30,10 +39,10 @@ if (isset($_POST['update'])) {
         $db_image_path = "uploads/" . basename($image); 
         
         move_uploaded_file($_FILES['image']['tmp_name'], $target);
-        $sql = "UPDATE products SET name='$name', price='$price', description='$desc', image='$db_image_path' WHERE id=$id";
+        $sql = "UPDATE products SET name='$name', price='$price', status='$status', image='$db_image_path' WHERE id=$id";
     } else {
-        // Không đổi ảnh thì chỉ update thông tin khác
-        $sql = "UPDATE products SET name='$name', price='$price', description='$desc' WHERE id=$id";
+        // Không đổi ảnh
+        $sql = "UPDATE products SET name='$name', price='$price', status='$status' WHERE id=$id";
     }
 
     if (mysqli_query($con, $sql)) {
@@ -64,11 +73,15 @@ include '../includes/header.php';
                             <label>Price (VND)</label>
                             <input type="number" name="price" class="form-control" value="<?= $product['price'] ?>" required>
                         </div>
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control" rows="3"><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
-                        </div>
                         
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="status" class="form-control">
+                                <option value="In Stock" <?= ($product['status'] ?? '') == 'In Stock' ? 'selected' : '' ?>>In Stock</option>
+                                <option value="Out of Stock" <?= ($product['status'] ?? '') == 'Out of Stock' ? 'selected' : '' ?>>Out of Stock</option>
+                            </select>
+                        </div>
+
                         <div class="form-group">
                             <label>Current Image</label><br>
                             <img src="../<?= $product['image'] ?>" width="100" class="mb-2 rounded border">
